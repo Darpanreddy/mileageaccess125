@@ -245,6 +245,11 @@
             color: #065f46;
         }
 
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         .status-info {
             background: #dbeafe;
             color: #1e40af;
@@ -314,154 +319,150 @@
     </div>
 
     <script>
-        let entries = [];
-        let storageAvailable = false;
+        // Global variables
+        var entries = [];
 
-        // Check if localStorage is available
-        function checkStorage() {
-            try {
-                const test = '__storage_test__';
-                localStorage.setItem(test, test);
-                localStorage.removeItem(test);
-                storageAvailable = true;
-                return true;
-            } catch(e) {
-                storageAvailable = false;
-                showStatus('Storage not available. Data will be lost on page refresh. Use Download Backup button!', 'info');
-                return false;
-            }
-        }
-
+        // Show status messages
         function showStatus(message, type) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
-            if (type === 'success') {
-                setTimeout(() => {
-                    statusDiv.innerHTML = '';
-                }, 3000);
+            try {
+                var statusDiv = document.getElementById('statusMessage');
+                statusDiv.innerHTML = '<div class="status-message status-' + type + '">' + message + '</div>';
+                if (type === 'success') {
+                    setTimeout(function() {
+                        statusDiv.innerHTML = '';
+                    }, 3000);
+                }
+            } catch(e) {
+                console.error('Error showing status:', e);
             }
         }
 
+        // Load data from localStorage
         function loadData() {
-            checkStorage();
-            if (storageAvailable) {
-                const saved = localStorage.getItem('bikeEntries');
+            try {
+                var saved = localStorage.getItem('bikeEntries');
                 if (saved) {
                     entries = JSON.parse(saved);
+                    console.log('Loaded entries:', entries);
                     updateDisplay();
+                    showStatus('Data loaded successfully!', 'success');
                 }
+            } catch(e) {
+                console.error('Error loading data:', e);
+                showStatus('Error loading data: ' + e.message, 'error');
             }
         }
 
+        // Save data to localStorage
         function saveData() {
-            if (storageAvailable) {
-                try {
-                    localStorage.setItem('bikeEntries', JSON.stringify(entries));
-                    showStatus('Data saved successfully!', 'success');
-                } catch(e) {
-                    showStatus('Failed to save. Use Download Backup!', 'info');
-                }
+            try {
+                localStorage.setItem('bikeEntries', JSON.stringify(entries));
+                console.log('Saved entries:', entries);
+                showStatus('Data saved successfully!', 'success');
+            } catch(e) {
+                console.error('Error saving data:', e);
+                showStatus('Error saving data: ' + e.message, 'error');
             }
         }
 
+        // Download backup
         function downloadData() {
-            const dataStr = JSON.stringify(entries, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'bike-tracker-backup-' + new Date().toISOString().split('T')[0] + '.json';
-            link.click();
-            URL.revokeObjectURL(url);
-            showStatus('Backup downloaded!', 'success');
+            try {
+                var dataStr = JSON.stringify(entries, null, 2);
+                var dataBlob = new Blob([dataStr], {type: 'application/json'});
+                var url = URL.createObjectURL(dataBlob);
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = 'bike-tracker-backup-' + new Date().toISOString().split('T')[0] + '.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                showStatus('Backup downloaded!', 'success');
+            } catch(e) {
+                console.error('Error downloading:', e);
+                showStatus('Error downloading: ' + e.message, 'error');
+            }
         }
 
+        // Add new entry
         function addEntry() {
-            const odometer = parseFloat(document.getElementById('odometer').value);
-            const liters = parseFloat(document.getElementById('liters').value);
-            const price = parseFloat(document.getElementById('price').value);
-
-            if (!odometer || !liters || !price) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            if (isNaN(odometer) || isNaN(liters) || isNaN(price)) {
-                alert('Please enter valid numbers');
-                return;
-            }
-
-            const newEntry = {
-                id: Date.now(),
-                odometer: odometer,
-                liters: liters,
-                price: price,
-                date: new Date().toLocaleDateString('en-IN'),
-                mileage: null,
-                kmDriven: null,
-                costPerKm: null
-            };
-
-            if (entries.length > 0) {
-                const lastEntry = entries[entries.length - 1];
-                const kmDriven = newEntry.odometer - lastEntry.odometer;
+            try {
+                console.log('Add entry button clicked');
                 
-                if (kmDriven <= 0) {
-                    alert('Odometer reading must be greater than the last entry (' + lastEntry.odometer + ' km)');
+                var odometerInput = document.getElementById('odometer');
+                var litersInput = document.getElementById('liters');
+                var priceInput = document.getElementById('price');
+                
+                var odometer = parseFloat(odometerInput.value);
+                var liters = parseFloat(litersInput.value);
+                var price = parseFloat(priceInput.value);
+
+                console.log('Input values:', {odometer: odometer, liters: liters, price: price});
+
+                if (!odometer || !liters || !price) {
+                    alert('Please fill in all fields');
                     return;
                 }
+
+                if (isNaN(odometer) || isNaN(liters) || isNaN(price)) {
+                    alert('Please enter valid numbers');
+                    return;
+                }
+
+                var newEntry = {
+                    id: Date.now(),
+                    odometer: odometer,
+                    liters: liters,
+                    price: price,
+                    date: new Date().toLocaleDateString('en-IN'),
+                    mileage: null,
+                    kmDriven: null,
+                    costPerKm: null
+                };
+
+                if (entries.length > 0) {
+                    var lastEntry = entries[entries.length - 1];
+                    var kmDriven = newEntry.odometer - lastEntry.odometer;
+                    
+                    if (kmDriven <= 0) {
+                        alert('Odometer reading must be greater than the last entry (' + lastEntry.odometer + ' km)');
+                        return;
+                    }
+                    
+                    newEntry.kmDriven = kmDriven;
+                    newEntry.mileage = kmDriven / newEntry.liters;
+                    newEntry.costPerKm = newEntry.price / kmDriven;
+                }
+
+                entries.push(newEntry);
+                console.log('Entry added:', newEntry);
                 
-                newEntry.kmDriven = kmDriven;
-                newEntry.mileage = kmDriven / newEntry.liters;
-                newEntry.costPerKm = newEntry.price / kmDriven;
+                saveData();
+                updateDisplay();
+
+                odometerInput.value = '';
+                litersInput.value = '';
+                priceInput.value = '';
+
+                showStatus('Entry added successfully!', 'success');
+            } catch(e) {
+                console.error('Error adding entry:', e);
+                showStatus('Error adding entry: ' + e.message, 'error');
+                alert('Error: ' + e.message);
             }
-
-            entries.push(newEntry);
-            saveData();
-            updateDisplay();
-
-            document.getElementById('odometer').value = '';
-            document.getElementById('liters').value = '';
-            document.getElementById('price').value = '';
-
-            showStatus('Entry added successfully!', 'success');
         }
 
+        // Delete entry
         function deleteEntry(id) {
-            if (!confirm('Are you sure you want to delete this entry?')) {
-                return;
-            }
+            try {
+                if (!confirm('Are you sure you want to delete this entry?')) {
+                    return;
+                }
 
-            entries = entries.filter(e => e.id !== id);
-            
-            // Recalculate all entries
-            for (let i = 1; i < entries.length; i++) {
-                const kmDriven = entries[i].odometer - entries[i - 1].odometer;
-                entries[i].kmDriven = kmDriven;
-                entries[i].mileage = kmDriven / entries[i].liters;
-                entries[i].costPerKm = entries[i].price / kmDriven;
-            }
-            
-            if (entries.length > 0) {
-                entries[0].mileage = null;
-                entries[0].kmDriven = null;
-                entries[0].costPerKm = null;
-            }
-            
-            saveData();
-            updateDisplay();
-            showStatus('Entry deleted!', 'success');
-        }
-
-        function updateDisplay() {
-            const avgMileage = entries.length > 1
-                ? entries.slice(1).reduce((sum, e) => sum + e.mileage, 0) / (entries.length - 1)
-                : 0;
-
-            const totalSpent = entries.reduce((sum, e) => sum + e.price, 0);
-            const totalLiters = entries.reduce((sum, e) => sum + e.liters, 0);
-
-            document.getElementById('avgMileage').textContent = 
-                avgMileage > 0 ? avgMileage.toFixed(2) + ' km/L' : '--';
-            document.getElementById('totalFuel').textContent = totalLiters.toFixed(2) + ' L';
-            document.getElementById('totalSpent').textContent = '�
+                entries = entries.filter(function(e) {
+                    return e.id !== id;
+                });
+                
+                // Recalculate all entries
+                for (var i = 1; i < entries.length; i++) {
+                    var kmDriven = entries[i].odometer - entries[i - 1].odometer;
+    
