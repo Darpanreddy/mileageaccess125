@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,9 +62,17 @@
             border-radius: 8px;
         }
 
-        .stat-card.blue { background: #eff6ff; }
-        .stat-card.green { background: #f0fdf4; }
-        .stat-card.orange { background: #fff7ed; }
+        .stat-card.blue {
+            background: #eff6ff;
+        }
+
+        .stat-card.green {
+            background: #f0fdf4;
+        }
+
+        .stat-card.orange {
+            background: #fff7ed;
+        }
 
         .stat-label {
             font-size: 13px;
@@ -76,9 +85,17 @@
             font-weight: bold;
         }
 
-        .stat-value.blue { color: #667eea; }
-        .stat-value.green { color: #10b981; }
-        .stat-value.orange { color: #f97316; }
+        .stat-value.blue {
+            color: #667eea;
+        }
+
+        .stat-value.green {
+            color: #10b981;
+        }
+
+        .stat-value.orange {
+            color: #f97316;
+        }
 
         .form-section {
             background: #f9fafb;
@@ -192,8 +209,13 @@
             border-bottom: 2px solid #e5e7eb;
         }
 
-        th.right { text-align: right; }
-        th.center { text-align: center; }
+        th.right {
+            text-align: right;
+        }
+
+        th.center {
+            text-align: center;
+        }
 
         td {
             padding: 12px 8px;
@@ -201,8 +223,13 @@
             border-bottom: 1px solid #f3f4f6;
         }
 
-        td.right { text-align: right; }
-        td.center { text-align: center; }
+        td.right {
+            text-align: right;
+        }
+
+        td.center {
+            text-align: center;
+        }
 
         tr:hover {
             background: #f9fafb;
@@ -256,13 +283,14 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="card">
             <div class="header">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12h3m6-9v3m6 6h3M6 6l2 2m10 10l-2-2M6 18l2-2m10-10l-2 2"/>
-                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M3 12h3m6-9v3m6 6h3M6 6l2 2m10 10l-2-2M6 18l2-2m10-10l-2 2" />
+                    <circle cx="12" cy="12" r="3" />
                 </svg>
                 <h1>Bike Mileage Tracker</h1>
             </div>
@@ -307,13 +335,14 @@
 
         <div class="card">
             <div class="history-header">
-                <svg class="icon" style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                    <polyline points="17 6 23 6 23 12"/>
+                <svg class="icon" style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
                 </svg>
                 <h2>Refuel History</h2>
             </div>
-            
+
             <div id="historyContent"></div>
         </div>
     </div>
@@ -328,11 +357,11 @@
                 var statusDiv = document.getElementById('statusMessage');
                 statusDiv.innerHTML = '<div class="status-message status-' + type + '">' + message + '</div>';
                 if (type === 'success') {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         statusDiv.innerHTML = '';
                     }, 3000);
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error('Error showing status:', e);
             }
         }
@@ -347,7 +376,7 @@
                     updateDisplay();
                     showStatus('Data loaded successfully!', 'success');
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error('Error loading data:', e);
                 showStatus('Error loading data: ' + e.message, 'error');
             }
@@ -359,7 +388,7 @@
                 localStorage.setItem('bikeEntries', JSON.stringify(entries));
                 console.log('Saved entries:', entries);
                 showStatus('Data saved successfully!', 'success');
-            } catch(e) {
+            } catch (e) {
                 console.error('Error saving data:', e);
                 showStatus('Error saving data: ' + e.message, 'error');
             }
@@ -369,7 +398,7 @@
         function downloadData() {
             try {
                 var dataStr = JSON.stringify(entries, null, 2);
-                var dataBlob = new Blob([dataStr], {type: 'application/json'});
+                var dataBlob = new Blob([dataStr], { type: 'application/json' });
                 var url = URL.createObjectURL(dataBlob);
                 var link = document.createElement('a');
                 link.href = url;
@@ -377,7 +406,7 @@
                 link.click();
                 URL.revokeObjectURL(url);
                 showStatus('Backup downloaded!', 'success');
-            } catch(e) {
+            } catch (e) {
                 console.error('Error downloading:', e);
                 showStatus('Error downloading: ' + e.message, 'error');
             }
@@ -387,16 +416,16 @@
         function addEntry() {
             try {
                 console.log('Add entry button clicked');
-                
+
                 var odometerInput = document.getElementById('odometer');
                 var litersInput = document.getElementById('liters');
                 var priceInput = document.getElementById('price');
-                
+
                 var odometer = parseFloat(odometerInput.value);
                 var liters = parseFloat(litersInput.value);
                 var price = parseFloat(priceInput.value);
 
-                console.log('Input values:', {odometer: odometer, liters: liters, price: price});
+                console.log('Input values:', { odometer: odometer, liters: liters, price: price });
 
                 if (!odometer || !liters || !price) {
                     alert('Please fill in all fields');
@@ -422,12 +451,12 @@
                 if (entries.length > 0) {
                     var lastEntry = entries[entries.length - 1];
                     var kmDriven = newEntry.odometer - lastEntry.odometer;
-                    
+
                     if (kmDriven <= 0) {
                         alert('Odometer reading must be greater than the last entry (' + lastEntry.odometer + ' km)');
                         return;
                     }
-                    
+
                     newEntry.kmDriven = kmDriven;
                     newEntry.mileage = kmDriven / newEntry.liters;
                     newEntry.costPerKm = newEntry.price / kmDriven;
@@ -435,7 +464,7 @@
 
                 entries.push(newEntry);
                 console.log('Entry added:', newEntry);
-                
+
                 saveData();
                 updateDisplay();
 
@@ -444,7 +473,7 @@
                 priceInput.value = '';
 
                 showStatus('Entry added successfully!', 'success');
-            } catch(e) {
+            } catch (e) {
                 console.error('Error adding entry:', e);
                 showStatus('Error adding entry: ' + e.message, 'error');
                 alert('Error: ' + e.message);
@@ -458,11 +487,99 @@
                     return;
                 }
 
-                entries = entries.filter(function(e) {
+                entries = entries.filter(function (e) {
                     return e.id !== id;
                 });
-                
+
                 // Recalculate all entries
                 for (var i = 1; i < entries.length; i++) {
                     var kmDriven = entries[i].odometer - entries[i - 1].odometer;
-    
+                    entries[i].kmDriven = kmDriven;
+                    entries[i].mileage = kmDriven / entries[i].liters;
+                    entries[i].costPerKm = entries[i].price / kmDriven;
+                }
+
+                saveData();
+                updateDisplay();
+                showStatus('Entry deleted!', 'success');
+            } catch (e) {
+                console.error('Error deleting entry:', e);
+                showStatus('Error deleting entry: ' + e.message, 'error');
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            try {
+                var historyDiv = document.getElementById('historyContent');
+                if (entries.length === 0) {
+                    historyDiv.innerHTML = '<div class="empty-state">No refuel entries yet.</div>';
+                    document.getElementById('avgMileage').textContent = '--';
+                    document.getElementById('totalFuel').textContent = '0.00 L';
+                    document.getElementById('totalSpent').textContent = '₹0.00';
+                    return;
+                }
+
+                var totalFuel = 0, totalSpent = 0, totalMileage = 0, validCount = 0;
+
+                var rows = entries.map(function (e, i) {
+                    totalFuel += e.liters;
+                    totalSpent += e.price;
+                    if (e.mileage) {
+                        totalMileage += e.mileage;
+                        validCount++;
+                    }
+                    return `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${e.date}</td>
+                        <td class="right">${e.odometer.toFixed(1)}</td>
+                        <td class="right">${e.liters.toFixed(2)}</td>
+                        <td class="right">₹${e.price.toFixed(2)}</td>
+                        <td class="right">${e.kmDriven ? e.kmDriven.toFixed(1) : '--'}</td>
+                        <td class="right mileage">${e.mileage ? e.mileage.toFixed(2) : '--'}</td>
+                        <td class="right">₹${e.costPerKm ? e.costPerKm.toFixed(2) : '--'}</td>
+                        <td class="center">
+                            <button class="delete-btn" onclick="deleteEntry(${e.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+
+                var table = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th class="right">Odometer</th>
+                                <th class="right">Fuel (L)</th>
+                                <th class="right">Price (₹)</th>
+                                <th class="right">KM Driven</th>
+                                <th class="right">Mileage</th>
+                                <th class="right">Cost/KM</th>
+                                <th class="center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+                historyDiv.innerHTML = table;
+
+                document.getElementById('totalFuel').textContent = totalFuel.toFixed(2) + ' L';
+                document.getElementById('totalSpent').textContent = '₹' + totalSpent.toFixed(2);
+                document.getElementById('avgMileage').textContent = validCount ? (totalMileage / validCount).toFixed(2) + ' km/L' : '--';
+            } catch (e) {
+                console.error('Error updating display:', e);
+                showStatus('Error updating display: ' + e.message, 'error');
+            }
+        }
+
+        // Initialize
+        window.onload = loadData;
+    </script>
+</body>
+
+</html>
