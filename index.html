@@ -1,585 +1,672 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bike Mileage Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 16px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            color: #333;
-        }
-
-        .icon {
-            width: 32px;
-            height: 32px;
-            fill: #667eea;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            padding: 16px;
-            border-radius: 8px;
-        }
-
-        .stat-card.blue {
-            background: #eff6ff;
-        }
-
-        .stat-card.green {
-            background: #f0fdf4;
-        }
-
-        .stat-card.orange {
-            background: #fff7ed;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .stat-value.blue {
-            color: #667eea;
-        }
-
-        .stat-value.green {
-            color: #10b981;
-        }
-
-        .stat-value.orange {
-            color: #f97316;
-        }
-
-        .form-section {
-            background: #f9fafb;
-            padding: 16px;
-            border-radius: 8px;
-        }
-
-        .form-section h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
-            color: #333;
-        }
-
-        .form-grid {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        @media (min-width: 640px) {
-            .form-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 6px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background: #5568d3;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: #10b981;
-            margin-top: 8px;
-        }
-
-        .btn-secondary:hover {
-            background: #059669;
-        }
-
-        .history-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .history-header h2 {
-            font-size: 20px;
-            color: #333;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: #6b7280;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        th.right {
-            text-align: right;
-        }
-
-        th.center {
-            text-align: center;
-        }
-
-        td {
-            padding: 12px 8px;
-            font-size: 14px;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        td.right {
-            text-align: right;
-        }
-
-        td.center {
-            text-align: center;
-        }
-
-        tr:hover {
-            background: #f9fafb;
-        }
-
-        .mileage {
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            padding: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .delete-btn:hover {
-            color: #dc2626;
-        }
-
-        .delete-icon {
-            width: 18px;
-            height: 18px;
-        }
-
-        .status-message {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-
-        .status-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scooter Mileage Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #1f2937;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      animation: fadeInDown 0.6s ease;
+    }
+    
+    .header h1 {
+      font-size: 42px;
+      color: white;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .header p {
+      color: rgba(255,255,255,0.9);
+      font-size: 16px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeInUp 0.6s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .input-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .input-group input[type="number"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+    
+    .input-group input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+    
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f3f4f6;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .checkbox-wrapper:hover {
+      background: #e5e7eb;
+    }
+    
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+    
+    .checkbox-wrapper label {
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,185,129,0.4);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239,68,68,0.4);
+    }
+    
+    .status-message {
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      animation: slideIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-success {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 4px solid #10b981;
+    }
+    
+    .status-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid #ef4444;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 20px;
+    }
+    
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    th {
+      padding: 15px 12px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    th:first-child {
+      text-align: left;
+      border-top-left-radius: 10px;
+    }
+    
+    th:last-child {
+      border-top-right-radius: 10px;
+    }
+    
+    td {
+      padding: 15px 12px;
+      text-align: right;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    tbody tr {
+      transition: background 0.2s ease;
+    }
+    
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+    
+    .chart-container {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 15px;
+    }
+    
+    h2 {
+      font-size: 24px;
+      color: #1f2937;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 32px;
+      }
+      
+      .card {
+        padding: 20px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="header">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12h3m6-9v3m6 6h3M6 6l2 2m10 10l-2-2M6 18l2-2m10-10l-2 2" />
-                    <circle cx="12" cy="12" r="3" />
-                </svg>
-                <h1>Bike Mileage Tracker</h1>
-            </div>
-
-            <div id="statusMessage"></div>
-
-            <div class="stats-grid">
-                <div class="stat-card blue">
-                    <div class="stat-label">Average Mileage</div>
-                    <div class="stat-value blue" id="avgMileage">--</div>
-                </div>
-                <div class="stat-card green">
-                    <div class="stat-label">Total Fuel</div>
-                    <div class="stat-value green" id="totalFuel">0.00 L</div>
-                </div>
-                <div class="stat-card orange">
-                    <div class="stat-label">Total Spent</div>
-                    <div class="stat-value orange" id="totalSpent">₹0.00</div>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h2>Add Refuel Entry</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Odometer Reading (km)</label>
-                        <input type="number" id="odometer" placeholder="e.g., 15420" step="0.1">
-                    </div>
-                    <div class="form-group">
-                        <label>Fuel Quantity (L)</label>
-                        <input type="number" id="liters" placeholder="e.g., 2.3" step="0.1">
-                    </div>
-                    <div class="form-group">
-                        <label>Price Paid (₹)</label>
-                        <input type="number" id="price" placeholder="e.g., 250.50" step="0.01">
-                    </div>
-                </div>
-                <button class="btn" onclick="addEntry()">Add Entry</button>
-                <button class="btn btn-secondary" onclick="downloadData()">Download Backup</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="history-header">
-                <svg class="icon" style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                    <polyline points="17 6 23 6 23 12" />
-                </svg>
-                <h2>Refuel History</h2>
-            </div>
-
-            <div id="historyContent"></div>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1>🛵 Scooter Mileage Tracker</h1>
+      <p>Track your fuel efficiency with style</p>
     </div>
 
-    <script>
-        // Global variables
-        var entries = [];
+    <div class="card">
+      <div id="statusMessage"></div>
 
-        // Show status messages
-        function showStatus(message, type) {
-            try {
-                var statusDiv = document.getElementById('statusMessage');
-                statusDiv.innerHTML = '<div class="status-message status-' + type + '">' + message + '</div>';
-                if (type === 'success') {
-                    setTimeout(function () {
-                        statusDiv.innerHTML = '';
-                    }, 3000);
-                }
-            } catch (e) {
-                console.error('Error showing status:', e);
-            }
+      <div class="input-section">
+        <div class="input-group">
+          <label>Odometer Reading</label>
+          <input type="number" id="odometer" placeholder="Enter km" step="0.1" />
+        </div>
+        <div class="input-group">
+          <label>Fuel Filled</label>
+          <input type="number" id="liters" placeholder="Enter liters" step="0.1" />
+        </div>
+        <div class="input-group">
+          <label>Price Paid</label>
+          <input type="number" id="price" placeholder="Enter ₹" step="0.01" />
+        </div>
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="fullTank" />
+          <label for="fullTank">Full Tank</label>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="addEntry()">
+          ➕ Add Entry
+        </button>
+        <button class="btn btn-success" onclick="downloadData()">
+          💾 Backup JSON
+        </button>
+        <button class="btn btn-success" onclick="exportCSV()">
+          📊 Export CSV
+        </button>
+        <button class="btn btn-danger" onclick="resetAll()">
+          🗑️ Reset All
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Statistics</h2>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>📝 Refuel History</h2>
+      <div id="historyContent"></div>
+      <div class="chart-container">
+        <canvas id="mileageChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let entries = [];
+
+    function showStatus(msg, type) {
+      const div = document.getElementById("statusMessage");
+      div.innerHTML = `<div class="status-message status-${type}">${type === 'success' ? '✅' : '❌'} ${msg}</div>`;
+      setTimeout(() => (div.innerHTML = ""), 3000);
+    }
+
+    function saveData() {
+      localStorage.setItem("scooterEntries", JSON.stringify(entries));
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem("scooterEntries");
+      if (saved) entries = JSON.parse(saved);
+      updateDisplay();
+    }
+
+    function addEntry() {
+      const odo = parseFloat(document.getElementById("odometer").value);
+      const liters = parseFloat(document.getElementById("liters").value);
+      const price = parseFloat(document.getElementById("price").value);
+      const isFull = document.getElementById("fullTank").checked;
+
+      if (isNaN(odo) || isNaN(liters) || isNaN(price)) {
+        showStatus("Please enter odometer, liters, and price.", "error");
+        return;
+      }
+
+      const newEntry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString("en-IN"),
+        odometer,
+        liters,
+        price,
+        fullTank: isFull,
+        kmDriven: null,
+        mileage: null,
+      };
+
+      entries.push(newEntry);
+      calculateMileage();
+      saveData();
+      updateDisplay();
+
+      ["odometer", "liters", "price"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("fullTank").checked = false;
+
+      showStatus("Entry added successfully!", "success");
+    }
+
+    function calculateMileage() {
+      let lastFullIndex = -1;
+      for (let i = 0; i < entries.length; i++) {
+        entries[i].kmDriven = null;
+        entries[i].mileage = null;
+      }
+
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].fullTank) {
+          if (lastFullIndex !== -1) {
+            const distance = entries[i].odometer - entries[lastFullIndex].odometer;
+            const fuelUsed = entries
+              .slice(lastFullIndex + 1, i + 1)
+              .reduce((sum, e) => sum + e.liters, 0);
+            entries[i].kmDriven = distance;
+            entries[i].mileage = distance / fuelUsed;
+          }
+          lastFullIndex = i;
         }
+      }
+    }
 
-        // Load data from localStorage
-        function loadData() {
-            try {
-                var saved = localStorage.getItem('bikeEntries');
-                if (saved) {
-                    entries = JSON.parse(saved);
-                    console.log('Loaded entries:', entries);
-                    updateDisplay();
-                    showStatus('Data loaded successfully!', 'success');
-                }
-            } catch (e) {
-                console.error('Error loading data:', e);
-                showStatus('Error loading data: ' + e.message, 'error');
+    function updateStats() {
+      const statsDiv = document.getElementById("statsGrid");
+      
+      if (entries.length === 0) {
+        statsDiv.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #6b7280;">No data yet. Add your first entry!</p>';
+        return;
+      }
+
+      const mileageEntries = entries.filter(e => e.mileage);
+      const totalFuel = entries.reduce((sum, e) => sum + e.liters, 0);
+      const totalSpent = entries.reduce((sum, e) => sum + e.price, 0);
+      const avgMileage = mileageEntries.length > 0 
+        ? mileageEntries.reduce((sum, e) => sum + e.mileage, 0) / mileageEntries.length 
+        : 0;
+      const totalKm = entries.length > 1 
+        ? entries[entries.length - 1].odometer - entries[0].odometer 
+        : 0;
+
+      statsDiv.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${avgMileage.toFixed(1)}</div>
+          <div class="stat-label">Avg Mileage (km/L)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalKm.toFixed(0)}</div>
+          <div class="stat-label">Total Distance (km)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalFuel.toFixed(1)}</div>
+          <div class="stat-label">Total Fuel (L)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">₹${totalSpent.toFixed(0)}</div>
+          <div class="stat-label">Total Spent</div>
+        </div>
+      `;
+    }
+
+    function downloadData() {
+      const blob = new Blob([JSON.stringify(entries, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "scooter-tracker-" + new Date().toISOString().split("T")[0] + ".json";
+      link.click();
+      showStatus("Backup downloaded!", "success");
+    }
+
+    function exportCSV() {
+      if (entries.length === 0) return showStatus("No data to export!", "error");
+      const header = ["Date","Odometer","Fuel(L)","Price(₹)","FullTank","KM Driven","Mileage"];
+      const rows = entries.map(e =>
+        [e.date,e.odometer,e.liters,e.price,e.fullTank ? "Yes":"No",
+         e.kmDriven ?? "", e.mileage ? e.mileage.toFixed(2) : ""].join(",")
+      );
+      const csv = [header.join(","), ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "scooter-tracker.csv";
+      link.click();
+      showStatus("CSV downloaded!", "success");
+    }
+
+    function resetAll() {
+      if (!confirm("Are you sure you want to clear all data? This cannot be undone!")) return;
+      localStorage.removeItem("scooterEntries");
+      entries = [];
+      updateDisplay();
+      showStatus("All data cleared!", "success");
+    }
+
+    function updateDisplay() {
+      updateStats();
+      
+      const div = document.getElementById("historyContent");
+      if (entries.length === 0) {
+        div.innerHTML = "<p style='text-align: center; color: #6b7280; padding: 20px;'>No entries yet. Start tracking your mileage!</p>";
+        drawChart([]);
+        return;
+      }
+
+      const rows = entries.map((e, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${e.date}</td>
+          <td>${e.odometer.toFixed(1)}</td>
+          <td>${e.liters.toFixed(2)}</td>
+          <td>₹${e.price.toFixed(2)}</td>
+          <td>${e.fullTank ? "✅" : "—"}</td>
+          <td>${e.kmDriven ? e.kmDriven.toFixed(1) : "—"}</td>
+          <td>${e.mileage ? e.mileage.toFixed(2) + " km/L" : "—"}</td>
+        </tr>
+      `).join("");
+
+      div.innerHTML = `<table>
+        <thead><tr>
+          <th>#</th><th>Date</th><th>Odometer</th><th>Fuel</th><th>Price</th>
+          <th>Full</th><th>KM Driven</th><th>Mileage</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
+
+      const fullMileageData = entries.filter(e => e.mileage);
+      drawChart(fullMileageData);
+    }
+
+    let chart;
+    function drawChart(data) {
+      const ctx = document.getElementById("mileageChart");
+      if (chart) chart.destroy();
+      if (data.length === 0) return;
+
+      const labels = data.map(e => e.date);
+      const mileageVals = data.map(e => e.mileage);
+      const avgVals = mileageVals.map((_, i) => {
+        const subset = mileageVals.slice(0, i + 1);
+        return subset.reduce((a,b)=>a+b,0) / subset.length;
+      });
+
+      chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Mileage (km/L)",
+              data: mileageVals,
+              borderColor: "#667eea",
+              backgroundColor: "rgba(102,126,234,0.2)",
+              fill: true,
+              tension: 0.4,
+              borderWidth: 3,
+            },
+            {
+              label: "Average Mileage",
+              data: avgVals,
+              borderColor: "#f59e0b",
+              borderDash: [8, 4],
+              fill: false,
+              tension: 0.4,
+              borderWidth: 2,
             }
-        }
-
-        // Save data to localStorage
-        function saveData() {
-            try {
-                localStorage.setItem('bikeEntries', JSON.stringify(entries));
-                console.log('Saved entries:', entries);
-                showStatus('Data saved successfully!', 'success');
-            } catch (e) {
-                console.error('Error saving data:', e);
-                showStatus('Error saving data: ' + e.message, 'error');
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: { 
+            y: { 
+              beginAtZero: false,
+              grid: {
+                color: '#e5e7eb'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
             }
-        }
-
-        // Download backup
-        function downloadData() {
-            try {
-                var dataStr = JSON.stringify(entries, null, 2);
-                var dataBlob = new Blob([dataStr], { type: 'application/json' });
-                var url = URL.createObjectURL(dataBlob);
-                var link = document.createElement('a');
-                link.href = url;
-                link.download = 'bike-tracker-backup-' + new Date().toISOString().split('T')[0] + '.json';
-                link.click();
-                URL.revokeObjectURL(url);
-                showStatus('Backup downloaded!', 'success');
-            } catch (e) {
-                console.error('Error downloading:', e);
-                showStatus('Error downloading: ' + e.message, 'error');
+          },
+          plugins: {
+            legend: { 
+              position: "top",
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: {
+                  size: 13,
+                  weight: 600
+                }
+              }
+            },
+            tooltip: { 
+              mode: "index", 
+              intersect: false,
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleFont: {
+                size: 14,
+                weight: 'bold'
+              },
+              bodyFont: {
+                size: 13
+              }
             }
-        }
+          }
+        },
+      });
+    }
 
-        // Add new entry
-        function addEntry() {
-            try {
-                console.log('Add entry button clicked');
-
-                var odometerInput = document.getElementById('odometer');
-                var litersInput = document.getElementById('liters');
-                var priceInput = document.getElementById('price');
-
-                var odometer = parseFloat(odometerInput.value);
-                var liters = parseFloat(litersInput.value);
-                var price = parseFloat(priceInput.value);
-
-                console.log('Input values:', { odometer: odometer, liters: liters, price: price });
-
-                if (!odometer || !liters || !price) {
-                    alert('Please fill in all fields');
-                    return;
-                }
-
-                if (isNaN(odometer) || isNaN(liters) || isNaN(price)) {
-                    alert('Please enter valid numbers');
-                    return;
-                }
-
-                var newEntry = {
-                    id: Date.now(),
-                    odometer: odometer,
-                    liters: liters,
-                    price: price,
-                    date: new Date().toLocaleDateString('en-IN'),
-                    mileage: null,
-                    kmDriven: null,
-                    costPerKm: null
-                };
-
-                if (entries.length > 0) {
-                    var lastEntry = entries[entries.length - 1];
-                    var kmDriven = newEntry.odometer - lastEntry.odometer;
-
-                    if (kmDriven <= 0) {
-                        alert('Odometer reading must be greater than the last entry (' + lastEntry.odometer + ' km)');
-                        return;
-                    }
-
-                    newEntry.kmDriven = kmDriven;
-                    newEntry.mileage = kmDriven / newEntry.liters;
-                    newEntry.costPerKm = newEntry.price / kmDriven;
-                }
-
-                entries.push(newEntry);
-                console.log('Entry added:', newEntry);
-
-                saveData();
-                updateDisplay();
-
-                odometerInput.value = '';
-                litersInput.value = '';
-                priceInput.value = '';
-
-                showStatus('Entry added successfully!', 'success');
-            } catch (e) {
-                console.error('Error adding entry:', e);
-                showStatus('Error adding entry: ' + e.message, 'error');
-                alert('Error: ' + e.message);
-            }
-        }
-
-        // Delete entry
-        function deleteEntry(id) {
-            try {
-                if (!confirm('Are you sure you want to delete this entry?')) {
-                    return;
-                }
-
-                entries = entries.filter(function (e) {
-                    return e.id !== id;
-                });
-
-                // Recalculate all entries
-                for (var i = 1; i < entries.length; i++) {
-                    var kmDriven = entries[i].odometer - entries[i - 1].odometer;
-                    entries[i].kmDriven = kmDriven;
-                    entries[i].mileage = kmDriven / entries[i].liters;
-                    entries[i].costPerKm = entries[i].price / kmDriven;
-                }
-
-                saveData();
-                updateDisplay();
-                showStatus('Entry deleted!', 'success');
-            } catch (e) {
-                console.error('Error deleting entry:', e);
-                showStatus('Error deleting entry: ' + e.message, 'error');
-            }
-        }
-
-        // Update display
-        function updateDisplay() {
-            try {
-                var historyDiv = document.getElementById('historyContent');
-                if (entries.length === 0) {
-                    historyDiv.innerHTML = '<div class="empty-state">No refuel entries yet.</div>';
-                    document.getElementById('avgMileage').textContent = '--';
-                    document.getElementById('totalFuel').textContent = '0.00 L';
-                    document.getElementById('totalSpent').textContent = '₹0.00';
-                    return;
-                }
-
-                var totalFuel = 0, totalSpent = 0, totalMileage = 0, validCount = 0;
-
-                var rows = entries.map(function (e, i) {
-                    totalFuel += e.liters;
-                    totalSpent += e.price;
-                    if (e.mileage) {
-                        totalMileage += e.mileage;
-                        validCount++;
-                    }
-                    return `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${e.date}</td>
-                        <td class="right">${e.odometer.toFixed(1)}</td>
-                        <td class="right">${e.liters.toFixed(2)}</td>
-                        <td class="right">₹${e.price.toFixed(2)}</td>
-                        <td class="right">${e.kmDriven ? e.kmDriven.toFixed(1) : '--'}</td>
-                        <td class="right mileage">${e.mileage ? e.mileage.toFixed(2) : '--'}</td>
-                        <td class="right">₹${e.costPerKm ? e.costPerKm.toFixed(2) : '--'}</td>
-                        <td class="center">
-                            <button class="delete-btn" onclick="deleteEntry(${e.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-                }).join('');
-
-                var table = `
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Date</th>
-                                <th class="right">Odometer</th>
-                                <th class="right">Fuel (L)</th>
-                                <th class="right">Price (₹)</th>
-                                <th class="right">KM Driven</th>
-                                <th class="right">Mileage</th>
-                                <th class="right">Cost/KM</th>
-                                <th class="center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                </div>
-            `;
-                historyDiv.innerHTML = table;
-
-                document.getElementById('totalFuel').textContent = totalFuel.toFixed(2) + ' L';
-                document.getElementById('totalSpent').textContent = '₹' + totalSpent.toFixed(2);
-                document.getElementById('avgMileage').textContent = validCount ? (totalMileage / validCount).toFixed(2) + ' km/L' : '--';
-            } catch (e) {
-                console.error('Error updating display:', e);
-                showStatus('Error updating display: ' + e.message, 'error');
-            }
-        }
-
-        // Initialize
-        window.onload = loadData;
-    </script>
+    window.onload = loadData;
+  </script>
 </body>
-
 </html>
