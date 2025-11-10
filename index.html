@@ -559,14 +559,14 @@
         return;
       }
 
-      const rows = entries.map((e, i) => `
+      const rows = entries.slice().reverse().map((e, i) => `
         <tr>
-          <td>${i + 1}</td>
+          <td>${entries.length - i}</td>
           <td>${e.date}</td>
           <td>${e.odometer.toFixed(1)}</td>
           <td>${e.liters.toFixed(2)}</td>
           <td>₹${e.price.toFixed(2)}</td>
-          <td>${e.fullTank ? "✅" : "—"}</td>
+          <td style="text-align: center;">${e.fullTank ? "✅" : "—"}</td>
           <td>${e.kmDriven ? e.kmDriven.toFixed(1) : "—"}</td>
           <td>${e.mileage ? e.mileage.toFixed(2) + " km/L" : "—"}</td>
         </tr>
