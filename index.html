@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scooter Mileage Tracker</title>
+  <title>Full Tanker</title>
   <style>
     * {
       margin: 0;
@@ -347,7 +347,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🛵 Scooter Mileage Tracker</h1>
+      <h1>🛵 Full Tanker</h1>
       <p>Track your fuel efficiency with style</p>
     </div>
 
@@ -520,7 +520,7 @@
       const blob = new Blob([JSON.stringify(entries, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "scooter-tracker-" + new Date().toISOString().split("T")[0] + ".json";
+      link.download = "full-tanker-" + new Date().toISOString().split("T")[0] + ".json";
       link.click();
       showStatus("Backup downloaded!", "success");
     }
@@ -536,7 +536,7 @@
       const blob = new Blob([csv], { type: "text/csv" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "scooter-tracker.csv";
+      link.download = "full-tanker.csv";
       link.click();
       showStatus("CSV downloaded!", "success");
     }
