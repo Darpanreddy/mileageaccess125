@@ -170,6 +170,16 @@
       box-shadow: 0 4px 12px rgba(239,68,68,0.4);
     }
     
+    .btn-secondary {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(107,114,128,0.4);
+    }
+    
     .status-message {
       padding: 15px 20px;
       border-radius: 10px;
@@ -290,6 +300,17 @@
       margin-bottom: 20px;
       font-weight: 700;
     }
+
+    .file-input-wrapper {
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
     
     @keyframes fadeInDown {
       from {
@@ -356,15 +377,15 @@
 
       <div class="input-section">
         <div class="input-group">
-          <label>Odometer Reading</label>
+          <label>Odometer Reading (km)</label>
           <input type="number" id="odometer" placeholder="Enter km" step="0.1" />
         </div>
         <div class="input-group">
-          <label>Fuel Filled</label>
+          <label>Fuel Filled (L)</label>
           <input type="number" id="liters" placeholder="Enter liters" step="0.1" />
         </div>
         <div class="input-group">
-          <label>Price Paid</label>
+          <label>Price Paid (₹)</label>
           <input type="number" id="price" placeholder="Enter ₹" step="0.01" />
         </div>
         <div class="checkbox-wrapper">
@@ -380,6 +401,12 @@
         <button class="btn btn-success" onclick="downloadData()">
           💾 Backup JSON
         </button>
+        <div class="file-input-wrapper">
+          <button class="btn btn-secondary">
+            📂 Restore JSON
+          </button>
+          <input type="file" id="restoreFile" accept=".json" onchange="restoreData()" />
+        </div>
         <button class="btn btn-success" onclick="exportCSV()">
           📊 Export CSV
         </button>
@@ -405,22 +432,42 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
+    // Initialize entries array
     let entries = [];
+
+    // Storage helper functions
+    function saveData() {
+      try {
+        localStorage.setItem("scooterEntries", JSON.stringify(entries));
+        console.log("Data saved successfully:", entries.length, "entries");
+      } catch (e) {
+        console.error("Error saving data:", e);
+        showStatus("Error saving data: " + e.message, "error");
+      }
+    }
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem("scooterEntries");
+        if (saved) {
+          entries = JSON.parse(saved);
+          console.log("Data loaded successfully:", entries.length, "entries");
+        } else {
+          entries = [];
+          console.log("No saved data found, starting fresh");
+        }
+      } catch (e) {
+        console.error("Error loading data:", e);
+        entries = [];
+        showStatus("Error loading data: " + e.message, "error");
+      }
+      updateDisplay();
+    }
 
     function showStatus(msg, type) {
       const div = document.getElementById("statusMessage");
       div.innerHTML = `<div class="status-message status-${type}">${type === 'success' ? '✅' : '❌'} ${msg}</div>`;
       setTimeout(() => (div.innerHTML = ""), 3000);
-    }
-
-    function saveData() {
-      localStorage.setItem("scooterEntries", JSON.stringify(entries));
-    }
-
-    function loadData() {
-      const saved = localStorage.getItem("scooterEntries");
-      if (saved) entries = JSON.parse(saved);
-      updateDisplay();
     }
 
     function addEntry() {
@@ -429,40 +476,63 @@
       const price = parseFloat(document.getElementById("price").value);
       const isFull = document.getElementById("fullTank").checked;
 
+      // Validation
       if (isNaN(odo) || isNaN(liters) || isNaN(price)) {
-        showStatus("Please enter odometer, liters, and price.", "error");
+        showStatus("Please enter valid values for odometer, liters, and price.", "error");
         return;
+      }
+
+      if (odo <= 0 || liters <= 0 || price <= 0) {
+        showStatus("Values must be greater than zero.", "error");
+        return;
+      }
+
+      // Check if odometer reading is less than previous entry
+      if (entries.length > 0) {
+        const lastOdo = entries[entries.length - 1].odometer;
+        if (odo <= lastOdo) {
+          showStatus("Odometer reading must be greater than previous entry (" + lastOdo.toFixed(1) + " km)", "error");
+          return;
+        }
       }
 
       const newEntry = {
         id: Date.now(),
         date: new Date().toLocaleDateString("en-IN"),
-        odometer,
-        liters,
-        price,
+        odometer: odo,
+        liters: liters,
+        price: price,
         fullTank: isFull,
         kmDriven: null,
         mileage: null,
       };
 
       entries.push(newEntry);
+      console.log("Entry added:", newEntry);
+      
       calculateMileage();
       saveData();
       updateDisplay();
 
-      ["odometer", "liters", "price"].forEach(id => document.getElementById(id).value = "");
+      // Clear inputs
+      document.getElementById("odometer").value = "";
+      document.getElementById("liters").value = "";
+      document.getElementById("price").value = "";
       document.getElementById("fullTank").checked = false;
 
-      showStatus("Entry added successfully!", "success");
+      showStatus("Entry added successfully! Total entries: " + entries.length, "success");
     }
 
     function calculateMileage() {
       let lastFullIndex = -1;
+      
+      // Reset all mileage calculations
       for (let i = 0; i < entries.length; i++) {
         entries[i].kmDriven = null;
         entries[i].mileage = null;
       }
 
+      // Calculate mileage between full tank entries
       for (let i = 0; i < entries.length; i++) {
         if (entries[i].fullTank) {
           if (lastFullIndex !== -1) {
@@ -470,8 +540,9 @@
             const fuelUsed = entries
               .slice(lastFullIndex + 1, i + 1)
               .reduce((sum, e) => sum + e.liters, 0);
+            
             entries[i].kmDriven = distance;
-            entries[i].mileage = distance / fuelUsed;
+            entries[i].mileage = fuelUsed > 0 ? distance / fuelUsed : null;
           }
           lastFullIndex = i;
         }
@@ -486,7 +557,7 @@
         return;
       }
 
-      const mileageEntries = entries.filter(e => e.mileage);
+      const mileageEntries = entries.filter(e => e.mileage !== null && e.mileage > 0);
       const totalFuel = entries.reduce((sum, e) => sum + e.liters, 0);
       const totalSpent = entries.reduce((sum, e) => sum + e.price, 0);
       const avgMileage = mileageEntries.length > 0 
@@ -498,7 +569,7 @@
 
       statsDiv.innerHTML = `
         <div class="stat-card">
-          <div class="stat-value">${avgMileage.toFixed(1)}</div>
+          <div class="stat-value">${avgMileage > 0 ? avgMileage.toFixed(1) : '—'}</div>
           <div class="stat-label">Avg Mileage (km/L)</div>
         </div>
         <div class="stat-card">
@@ -516,40 +587,8 @@
       `;
     }
 
-    function downloadData() {
-      const blob = new Blob([JSON.stringify(entries, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "full-tanker-" + new Date().toISOString().split("T")[0] + ".json";
-      link.click();
-      showStatus("Backup downloaded!", "success");
-    }
-
-    function exportCSV() {
-      if (entries.length === 0) return showStatus("No data to export!", "error");
-      const header = ["Date","Odometer","Fuel(L)","Price(₹)","FullTank","KM Driven","Mileage"];
-      const rows = entries.map(e =>
-        [e.date,e.odometer,e.liters,e.price,e.fullTank ? "Yes":"No",
-         e.kmDriven ?? "", e.mileage ? e.mileage.toFixed(2) : ""].join(",")
-      );
-      const csv = [header.join(","), ...rows].join("\n");
-      const blob = new Blob([csv], { type: "text/csv" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "full-tanker.csv";
-      link.click();
-      showStatus("CSV downloaded!", "success");
-    }
-
-    function resetAll() {
-      if (!confirm("Are you sure you want to clear all data? This cannot be undone!")) return;
-      localStorage.removeItem("scooterEntries");
-      entries = [];
-      updateDisplay();
-      showStatus("All data cleared!", "success");
-    }
-
     function updateDisplay() {
+      console.log("Updating display with", entries.length, "entries");
       updateStats();
       
       const div = document.getElementById("historyContent");
@@ -567,8 +606,8 @@
           <td>${e.liters.toFixed(2)}</td>
           <td>₹${e.price.toFixed(2)}</td>
           <td style="text-align: center;">${e.fullTank ? "✅" : "—"}</td>
-          <td>${e.kmDriven ? e.kmDriven.toFixed(1) : "—"}</td>
-          <td>${e.mileage ? e.mileage.toFixed(2) + " km/L" : "—"}</td>
+          <td>${e.kmDriven !== null ? e.kmDriven.toFixed(1) : "—"}</td>
+          <td>${e.mileage !== null ? e.mileage.toFixed(2) + " km/L" : "—"}</td>
         </tr>
       `).join("");
 
@@ -578,15 +617,98 @@
           <th>Full</th><th>KM Driven</th><th>Mileage</th>
         </tr></thead><tbody>${rows}</tbody></table>`;
 
-      const fullMileageData = entries.filter(e => e.mileage);
+      const fullMileageData = entries.filter(e => e.mileage !== null && e.mileage > 0);
       drawChart(fullMileageData);
+    }
+
+    function downloadData() {
+      if (entries.length === 0) {
+        showStatus("No data to backup!", "error");
+        return;
+      }
+      
+      const blob = new Blob([JSON.stringify(entries, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "full-tanker-backup-" + new Date().toISOString().split("T")[0] + ".json";
+      link.click();
+      showStatus("Backup downloaded successfully!", "success");
+    }
+
+    function restoreData() {
+      const fileInput = document.getElementById("restoreFile");
+      const file = fileInput.files[0];
+      
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data)) {
+            if (confirm(`This will replace your current data (${entries.length} entries) with ${data.length} entries from the backup. Continue?`)) {
+              entries = data;
+              calculateMileage();
+              saveData();
+              updateDisplay();
+              showStatus("Data restored successfully! " + entries.length + " entries loaded.", "success");
+            }
+          } else {
+            showStatus("Invalid backup file format!", "error");
+          }
+        } catch (error) {
+          showStatus("Error reading backup file: " + error.message, "error");
+        }
+        fileInput.value = "";
+      };
+      reader.readAsText(file);
+    }
+
+    function exportCSV() {
+      if (entries.length === 0) {
+        showStatus("No data to export!", "error");
+        return;
+      }
+      
+      const header = ["Date","Odometer","Fuel(L)","Price(₹)","FullTank","KM Driven","Mileage"];
+      const rows = entries.map(e =>
+        [e.date, e.odometer, e.liters, e.price, e.fullTank ? "Yes" : "No",
+         e.kmDriven !== null ? e.kmDriven.toFixed(1) : "", 
+         e.mileage !== null ? e.mileage.toFixed(2) : ""].join(",")
+      );
+      const csv = [header.join(","), ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "full-tanker-export-" + new Date().toISOString().split("T")[0] + ".csv";
+      link.click();
+      showStatus("CSV exported successfully!", "success");
+    }
+
+    function resetAll() {
+      if (!confirm("⚠️ Are you sure you want to clear all data?\n\nThis will permanently delete all " + entries.length + " entries and cannot be undone!\n\nConsider downloading a backup first.")) {
+        return;
+      }
+      
+      localStorage.removeItem("scooterEntries");
+      entries = [];
+      updateDisplay();
+      showStatus("All data cleared successfully!", "success");
     }
 
     let chart;
     function drawChart(data) {
       const ctx = document.getElementById("mileageChart");
-      if (chart) chart.destroy();
-      if (data.length === 0) return;
+      if (chart) {
+        chart.destroy();
+      }
+      
+      if (data.length === 0) {
+        ctx.style.display = 'none';
+        return;
+      }
+      
+      ctx.style.display = 'block';
 
       const labels = data.map(e => e.date);
       const mileageVals = data.map(e => e.mileage);
@@ -608,6 +730,8 @@
               fill: true,
               tension: 0.4,
               borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
             },
             {
               label: "Average Mileage",
@@ -617,6 +741,8 @@
               fill: false,
               tension: 0.4,
               borderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
             }
           ],
         },
@@ -628,11 +754,27 @@
               beginAtZero: false,
               grid: {
                 color: '#e5e7eb'
+              },
+              title: {
+                display: true,
+                text: 'Mileage (km/L)',
+                font: {
+                  size: 14,
+                  weight: 'bold'
+                }
               }
             },
             x: {
               grid: {
                 display: false
+              },
+              title: {
+                display: true,
+                text: 'Date',
+                font: {
+                  size: 14,
+                  weight: 'bold'
+                }
               }
             }
           },
@@ -659,6 +801,16 @@
               },
               bodyFont: {
                 size: 13
+              },
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  label += context.parsed.y.toFixed(2) + ' km/L';
+                  return label;
+                }
               }
             }
           }
@@ -666,7 +818,19 @@
       });
     }
 
-    window.onload = loadData;
+    // Load data when page loads
+    window.addEventListener('load', function() {
+      console.log("Page loaded, initializing...");
+      loadData();
+    });
+
+    // Also try to load on DOMContentLoaded as backup
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("DOM ready, initializing...");
+      if (entries.length === 0) {
+        loadData();
+      }
+    });
   </script>
 </body>
 </html>
